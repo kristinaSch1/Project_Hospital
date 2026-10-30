@@ -115,6 +115,30 @@ namespace Data_Hospital_Manager.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Hospitals");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "Казанлък",
+                            BedsCount = 200,
+                            CreatedOn = new DateTime(2026, 10, 30, 14, 22, 33, 678, DateTimeKind.Local).AddTicks(6183),
+                            Email = "mbalkazanlak@mail.bg",
+                            IsDeleted = false,
+                            Name = "МБАЛ Казанлък",
+                            PhoneNumber = "0899823296"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "Стара Загора",
+                            BedsCount = 150,
+                            CreatedOn = new DateTime(2026, 10, 30, 14, 22, 33, 678, DateTimeKind.Local).AddTicks(6222),
+                            Email = "mbalstz@mail.bg",
+                            IsDeleted = false,
+                            Name = "МБАЛ Стара Загора",
+                            PhoneNumber = "0899823294"
+                        });
                 });
 
             modelBuilder.Entity("Data_Hospital_Manager.Entities.Patient", b =>
