@@ -61,6 +61,28 @@ namespace Data_Hospital_Manager.Migrations
                     b.HasIndex("HospitalId");
 
                     b.ToTable("Doctors");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "niya@mail.bg",
+                            FirstName = "Niya",
+                            HospitalId = 3,
+                            LastName = "Ivanova",
+                            PhoneNumber = "0888888888",
+                            Specialty = "Cardiologist"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "dariya@mail.bg",
+                            FirstName = "Dariya",
+                            HospitalId = 4,
+                            LastName = "Vulkova",
+                            PhoneNumber = "0888888888",
+                            Specialty = "Neurologist"
+                        });
                 });
 
             modelBuilder.Entity("Data_Hospital_Manager.Entities.DoctorPatient", b =>
@@ -76,6 +98,23 @@ namespace Data_Hospital_Manager.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("DoctorsPatients");
+
+                    b.HasData(
+                        new
+                        {
+                            DoctorId = 1,
+                            PatientId = 1
+                        },
+                        new
+                        {
+                            DoctorId = 2,
+                            PatientId = 2
+                        },
+                        new
+                        {
+                            DoctorId = 1,
+                            PatientId = 2
+                        });
                 });
 
             modelBuilder.Entity("Data_Hospital_Manager.Entities.Hospital", b =>
@@ -122,7 +161,7 @@ namespace Data_Hospital_Manager.Migrations
                             Id = 1,
                             Address = "Казанлък",
                             BedsCount = 200,
-                            CreatedOn = new DateTime(2026, 10, 30, 14, 22, 33, 678, DateTimeKind.Local).AddTicks(6183),
+                            CreatedOn = new DateTime(2026, 11, 6, 13, 55, 40, 708, DateTimeKind.Local).AddTicks(8227),
                             Email = "mbalkazanlak@mail.bg",
                             IsDeleted = false,
                             Name = "МБАЛ Казанлък",
@@ -133,7 +172,7 @@ namespace Data_Hospital_Manager.Migrations
                             Id = 2,
                             Address = "Стара Загора",
                             BedsCount = 150,
-                            CreatedOn = new DateTime(2026, 10, 30, 14, 22, 33, 678, DateTimeKind.Local).AddTicks(6222),
+                            CreatedOn = new DateTime(2026, 11, 6, 13, 55, 40, 708, DateTimeKind.Local).AddTicks(8266),
                             Email = "mbalstz@mail.bg",
                             IsDeleted = false,
                             Name = "МБАЛ Стара Загора",
@@ -170,6 +209,24 @@ namespace Data_Hospital_Manager.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Patients");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "ivayla@mail.bg",
+                            FirstName = "Ivayla",
+                            LastName = "Ivanova",
+                            PhoneNumber = "0891234567"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "petya@mail.bg",
+                            FirstName = "Petya",
+                            LastName = "Petrova",
+                            PhoneNumber = "0891934567"
+                        });
                 });
 
             modelBuilder.Entity("Data_Hospital_Manager.Entities.Doctor", b =>

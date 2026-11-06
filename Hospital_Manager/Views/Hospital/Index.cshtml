@@ -14,6 +14,43 @@
     </a>
 </p>
 
+<form asp-controller="Hospital" asp-action="Index" method="get">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label class="form-label"> Hospital Name</label>
+            <input type="text"
+                   name="search"
+                   value="@ViewBag.Search"
+                   class="form-control"
+                   placeholder="Search by name..." />
+
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label"> Minimum Beds </label>
+            <input type="number"
+                   name="minBeds"
+                   value="@ViewBag.MinBeds"
+                   min ="0" 
+                   class="form-control" />
+        </div>
+
+        <div class="col-md-4">
+            <select name="sortOrder">
+                <option value="name" selected="@(ViewBag.SortOrder == "name")"> Name A-Z</option>
+                <option value="beds_asc" selected="@(ViewBag.SortOrder == "beds_asc")"> Beds Ascending</option>
+                <option value="beds_desc" selected="@(ViewBag.SortOrder == "beds_desc")"> Beds Descending</option>
+            </select>
+        </div>
+        
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">
+                Search
+            </button>
+        </div>
+    </div>
+</form>
+
 <table class="table">
     <thead>
         <tr>

@@ -17,12 +17,6 @@ namespace Hospital_Manager_Core.Services
         {
             this.context = context;
         }
-        public async Task<List<Hospital>> GetAllHospitalsAsync()
-        {
-            return await context.Hospitals
-                    .Where(h => !h.IsDeleted)
-                    .ToListAsync();
-        }
         public async Task AddHospitalAsync(Hospital hospital)
         {
             context.Hospitals.Add(hospital);
@@ -45,6 +39,40 @@ namespace Hospital_Manager_Core.Services
         public async Task UpdateHospitalAsync(Hospital hospital)
         {
             await context.SaveChangesAsync();
+        }
+
+        public async Task<List<Hospital>> GetAllHospitalsAsync(string? search = null, int? minBeds = null, string? sortOrder = null)
+        {
+            var query = context.Hospitals.Where(h => !h.IsDeleted);
+
+            if(!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(h => h.Name.Contains(search));
+            }
+
+            if(minBeds.HasValue)
+            {
+                query = query.Where(h => h.BedsCount >= minBeds.Value);
+            }
+
+            if(sortOrder == "name")
+            {
+                query = query.OrderBy(h => h.Name);
+            }
+            else if(sortOrder == "beds_asc")
+            {
+                query = query.OrderBy(h => h.BedsCount);
+            }
+            else if(sortOrder == "beds_desc")
+            {
+                query = query.OrderByDescending(h => h.BedsCount);
+            }
+            else
+            {
+                query = query.OrderBy(h => h.Name);
+            }
+
+            return await query.ToListAsync();
         }
     }
 }
