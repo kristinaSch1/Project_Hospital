@@ -17,50 +17,72 @@ namespace Hospital_Manager_Core.Services
         {
             this.context = context;
         }
+        public async Task<List<Doctor>> GetAllDoctorsAsync(string? search, string? specialty, string? sortOrder)
+        {
+            var query = context.Doctors.Include(d => d.Hospital).Where(d => true);
 
+            //IQueryable<Doctor> query = context.Doctors.Include(h=>h.Hospital);
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(d => d.FirstName.Contains(search) || d.LastName.Contains(search));
+            }
+
+            if (!string.IsNullOrEmpty(specialty))
+            {
+                query = query.Where(d => d.Specialty.Contains(specialty));
+            }
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    query = query.OrderByDescending(d => d.FirstName)
+                        .ThenByDescending(d => d.LastName);
+                    break;
+                case "name_asc":
+                    query = query.OrderBy(d => d.FirstName)
+                        .ThenBy(d => d.LastName);
+                    break;
+                case "specialty":
+                    query = query.OrderBy(d => d.Specialty)
+                        .ThenBy(d => d.FirstName);
+                    break;
+                default:
+                    query = query.OrderBy(d => d.FirstName)
+                        .ThenBy(d => d.LastName);
+                    break;
+            }
+            return await query.ToListAsync();
+        }
+        public async Task<Doctor?> GetDoctorByIdAsync(int id)
+        {
+            return await context.Doctors.FindAsync(id);
+        }
+        public async Task<Doctor?> GetDoctorDetailsAsync(int id)
+        {
+            return await context.Doctors.Include(x => x.Hospital)
+                .Include(x => x.DoctorPatients)
+                .ThenInclude(x => x.Patient)
+                .FirstOrDefaultAsync(d => d.Id == id);
+        }
         public async Task AddDoctorAsync(Doctor doctor)
         {
             context.Doctors.Add(doctor);
             await context.SaveChangesAsync();
         }
-
-        public async Task DeleteDoctorAsync(int id)
-        {
-            Doctor? d = context.Doctors
-                .Include(d => d.DoctorPatients)
-                .FirstOrDefault(x => x.Id == id);
-            if(d != null)
-            {
-                context.DoctorsPatients.RemoveRange(d.DoctorPatients);
-                context.Doctors.Remove(d);
-                await context.SaveChangesAsync();
-            }
-        }
-
-        public async Task<Doctor?> GetDoctorByIdAsync(int id)
-        {
-            return await context.Doctors.FindAsync(id);
-        }
-
-        public async Task<Doctor?> GetDoctorDetailsAsync(int id)
-        {
-            return await context.Doctors
-                .Include(d => d.Hospital)
-                .Include(d => d.DoctorPatients)
-                    .ThenInclude(dp => dp.Patient)
-                .FirstOrDefaultAsync(d => d.Id == id);
-        }
-
-        public async Task<List<Doctor>> GetAllDoctorsAsync()
-        {
-            return await context.Doctors
-                .Include(d => d.Hospital)
-                .ToListAsync();
-        }
-
         public async Task UpdateDoctorAsync(Doctor doctor)
         {
             await context.SaveChangesAsync();
+        }
+        public async Task DeleteDoctorAsync(int id)
+        {
+            var doctor = await context.Doctors.Include(d => d.DoctorPatients).FirstOrDefaultAsync(d => d.Id == id);
+
+            if (doctor != null)
+            {
+                context.DoctorPatients.RemoveRange(doctor.DoctorPatients);
+                context.Doctors.Remove(doctor);
+                await context.SaveChangesAsync();
+            }
         }
     }
 

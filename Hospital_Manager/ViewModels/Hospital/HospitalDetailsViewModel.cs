@@ -17,5 +17,6 @@ namespace Hospital_Manager.ViewModels.Hospital
         public int BedsCount { get; set; }
         [Display(Name = "Създадена на")]
         public DateTime CreatedOn { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

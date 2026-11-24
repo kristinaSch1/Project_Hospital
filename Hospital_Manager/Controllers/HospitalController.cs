@@ -10,40 +10,35 @@ namespace Hospital_Manager.Controllers
 
     public class HospitalController : Controller
     {
-
         private readonly IHospitalService hospitalService;
-
-        public HospitalController(IHospitalService service)
+        public HospitalController(IHospitalService hospitalService)
         {
-            this.hospitalService = service;
+            this.hospitalService = hospitalService;
         }
 
         public async Task<IActionResult> Index(string? search, int? minBeds, string? sortOrder)
         {
             var hospitals = await hospitalService.GetAllHospitalsAsync(search, minBeds, sortOrder);
 
-            var model = new List<HospitalIndexViewModel>();//празен списък за ViewModel-ите
+            var model = new List<HospitalIndexViewModel>();
 
-            foreach (var hospital in hospitals)
+            foreach (var item in hospitals)
             {
                 model.Add(new HospitalIndexViewModel
                 {
-                    Id = hospital.Id,
-                    Name = hospital.Name,
-                    Address = hospital.Address,
-                    Email = hospital.Email,
-                    PhoneNumber = hospital.PhoneNumber,
-                    BedsCount = hospital.BedsCount
+                    Id = item.Id,
+                    Name = item.Name,
+                    Address = item.Address,
+                    Email = item.Email,
+                    PhoneNumber = item.PhoneNumber,
+                    BedsCount = item.BedsCount
                 });
             }
-
             ViewBag.Search = search;
-            ViewBag.SortOrder = sortOrder;
             ViewBag.MinBeds = minBeds;
-            return View(model);//Изпращаме списъка към View
+            ViewBag.SortOrder = sortOrder;
+            return View(model);
         }
-        
-
         public async Task<IActionResult> Details(int id)
         {
             var hospital = await hospitalService.GetHospitalByIdAsync(id);
@@ -63,21 +58,18 @@ namespace Hospital_Manager.Controllers
                 BedsCount = hospital.BedsCount,
                 CreatedOn = hospital.CreatedOn
             };
-
             return View(model);
         }
-
-        public IActionResult Create()//метод  който показва празната форма.
+        public IActionResult Create()
         {
             return View();
         }
-
         [HttpPost]
-        public async Task<IActionResult> Create(HospitalCreateViewModel model)//обработва POST заявка
+        public async Task<IActionResult> Create(HospitalCreateViewModel model)
         {
-            if (ModelState.IsValid)//Проверява валидацията
+            if (ModelState.IsValid)
             {
-                var hospital = new Hospital
+                var hospital = new Data_Hospital_Manager.Entities.Hospital
                 {
                     Name = model.Name,
                     Address = model.Address,
@@ -87,14 +79,12 @@ namespace Hospital_Manager.Controllers
                     CreatedOn = DateTime.Now,
                     IsDeleted = false
                 };
-
                 await hospitalService.AddHospitalAsync(hospital);
                 return RedirectToAction(nameof(Index));
             }
 
             return View(model);
         }
-
         public async Task<IActionResult> Edit(int id)
         {
             var hospital = await hospitalService.GetHospitalByIdAsync(id);
@@ -113,10 +103,8 @@ namespace Hospital_Manager.Controllers
                 PhoneNumber = hospital.PhoneNumber,
                 BedsCount = hospital.BedsCount
             };
-
             return View(model);
         }
-
         [HttpPost]
         public async Task<IActionResult> Edit(int id, HospitalEditViewModel model)
         {
@@ -124,7 +112,6 @@ namespace Hospital_Manager.Controllers
             {
                 return NotFound();
             }
-
             if (ModelState.IsValid)
             {
                 var hospital = await hospitalService.GetHospitalByIdAsync(id);
@@ -139,39 +126,40 @@ namespace Hospital_Manager.Controllers
                 hospital.Email = model.Email;
                 hospital.PhoneNumber = model.PhoneNumber;
                 hospital.BedsCount = model.BedsCount;
-
                 await hospitalService.UpdateHospitalAsync(hospital);
-
                 return RedirectToAction(nameof(Index));
-            }
 
+            }
             return View(model);
         }
-
-        public async Task<IActionResult> Delete(int id)//Сигурни ли сте, че искате да изтриете тази болница?
+        public async Task<IActionResult> Delete(int id)
         {
             var hospital = await hospitalService.GetHospitalByIdAsync(id);
-
             if (hospital == null)
             {
                 return NotFound();
             }
-
             var model = new HospitalDeleteViewModel
             {
                 Id = hospital.Id,
-                Name = hospital.Name
+                Name = hospital.Name,
             };
-
             return View(model);
         }
-
         [HttpPost]
         [ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await hospitalService.DeleteHospitalAsync(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await hospitalService.DeleteHospitalAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }

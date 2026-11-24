@@ -66,22 +66,32 @@ namespace Data_Hospital_Manager.Migrations
                         new
                         {
                             Id = 1,
-                            Email = "niya@mail.bg",
-                            FirstName = "Niya",
-                            HospitalId = 3,
-                            LastName = "Ivanova",
-                            PhoneNumber = "0888888888",
-                            Specialty = "Cardiologist"
+                            Email = "johnsmith@abv.bg",
+                            FirstName = "Dr. John",
+                            HospitalId = 1,
+                            LastName = "Smith",
+                            PhoneNumber = "0888 123 456",
+                            Specialty = "Cardiology"
                         },
                         new
                         {
                             Id = 2,
-                            Email = "dariya@mail.bg",
-                            FirstName = "Dariya",
-                            HospitalId = 4,
-                            LastName = "Vulkova",
-                            PhoneNumber = "0888888888",
-                            Specialty = "Neurologist"
+                            Email = "kirlimanolov@abv.bg",
+                            FirstName = "Dr. Kiril",
+                            HospitalId = 2,
+                            LastName = "Manolov",
+                            PhoneNumber = "0888 123 457",
+                            Specialty = "Neurology"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Email = "petarjohnson@abv.bg",
+                            FirstName = "Dr. Peter",
+                            HospitalId = 3,
+                            LastName = "Jonhson",
+                            PhoneNumber = "0888 123 459",
+                            Specialty = "Dermatology"
                         });
                 });
 
@@ -97,7 +107,7 @@ namespace Data_Hospital_Manager.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("DoctorsPatients");
+                    b.ToTable("DoctorPatients");
 
                     b.HasData(
                         new
@@ -112,8 +122,8 @@ namespace Data_Hospital_Manager.Migrations
                         },
                         new
                         {
-                            DoctorId = 1,
-                            PatientId = 2
+                            DoctorId = 2,
+                            PatientId = 3
                         });
                 });
 
@@ -159,24 +169,35 @@ namespace Data_Hospital_Manager.Migrations
                         new
                         {
                             Id = 1,
-                            Address = "Казанлък",
-                            BedsCount = 200,
-                            CreatedOn = new DateTime(2026, 11, 6, 13, 55, 40, 708, DateTimeKind.Local).AddTicks(8227),
-                            Email = "mbalkazanlak@mail.bg",
+                            Address = "Kazanluk",
+                            BedsCount = 100,
+                            CreatedOn = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "hospital@email.com",
                             IsDeleted = false,
-                            Name = "МБАЛ Казанлък",
-                            PhoneNumber = "0899823296"
+                            Name = "MBAL Kazanluk",
+                            PhoneNumber = "123-456-7890"
                         },
                         new
                         {
                             Id = 2,
-                            Address = "Стара Загора",
+                            Address = "Stara Zagora",
                             BedsCount = 150,
-                            CreatedOn = new DateTime(2026, 11, 6, 13, 55, 40, 708, DateTimeKind.Local).AddTicks(8266),
-                            Email = "mbalstz@mail.bg",
+                            CreatedOn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "countyhospital@email.com",
                             IsDeleted = false,
-                            Name = "МБАЛ Стара Загора",
-                            PhoneNumber = "0899823294"
+                            Name = "Umbal Stara Zagora",
+                            PhoneNumber = "987-654-3210"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Address = "Plovdiv",
+                            BedsCount = 200,
+                            CreatedOn = new DateTime(2025, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "plovdivhospital@email.com",
+                            IsDeleted = false,
+                            Name = "MBAL Plovdiv",
+                            PhoneNumber = "032-555-1234"
                         });
                 });
 
@@ -214,18 +235,26 @@ namespace Data_Hospital_Manager.Migrations
                         new
                         {
                             Id = 1,
-                            Email = "ivayla@mail.bg",
-                            FirstName = "Ivayla",
-                            LastName = "Ivanova",
-                            PhoneNumber = "0891234567"
+                            Email = "ivanpetrov1@abv.bg",
+                            FirstName = "Ivan",
+                            LastName = "Petrov",
+                            PhoneNumber = "0888 123 456"
                         },
                         new
                         {
                             Id = 2,
-                            Email = "petya@mail.bg",
-                            FirstName = "Petya",
-                            LastName = "Petrova",
-                            PhoneNumber = "0891934567"
+                            Email = "petarivanov1@abv.bg",
+                            FirstName = "Petar",
+                            LastName = "Ivanov",
+                            PhoneNumber = "0888 123 457"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Email = "iordaniordanov1@abv.bg",
+                            FirstName = "Iordan",
+                            LastName = "Iordanov",
+                            PhoneNumber = "0888 123 458"
                         });
                 });
 
@@ -234,7 +263,7 @@ namespace Data_Hospital_Manager.Migrations
                     b.HasOne("Data_Hospital_Manager.Entities.Hospital", "Hospital")
                         .WithMany("Doctors")
                         .HasForeignKey("HospitalId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Hospital");

@@ -1,6 +1,5 @@
 ﻿using Data_Hospital_Manager;
 using Data_Hospital_Manager.Entities;
-using Data_Hospital_Manager.Migrations;
 using Hospital_Manager_Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -18,59 +17,55 @@ namespace Hospital_Manager_Core.Services
         {
             this.context = context;
         }
+        public async Task<List<Patient>> GetAllPatientsAsync()
+        {
+            return await context.Patients
+                .Include(x => x.DoctorPatients)
+                .ThenInclude(x => x.Doctor)
+                .ToListAsync();
+        }
+        public async Task<Patient?> GetPatientByIdAsync(int id)
+        {
+            return await context.Patients.FindAsync(id);
+        }
+        //Details,Edit GET, Edit POST
+        public async Task<Patient?> GetPatientWithDoctorsAsync(int id)
+        {
+            return await context.Patients.Include(x => x.DoctorPatients)
+                .ThenInclude(x => x.Doctor)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+        //create post
         public async Task AddPatientAsync(Patient patient)
         {
             context.Patients.Add(patient);
             await context.SaveChangesAsync();
         }
-
-        public async Task DeletePatientAsync(int id)
-        {
-            Patient? p = await context.Patients
-                .Include(p => p.DoctorPatients)
-                .FirstOrDefaultAsync(x => x.Id == id);
-            if (p != null)
-            {
-                context.DoctorsPatients.RemoveRange(p.DoctorPatients);
-                context.Patients.Remove(p);
-                await context.SaveChangesAsync();
-            }
-        }
-
-        public async Task<List<Patient>> GetAllPetientsAsync()
-        {
-            return await context.Patients
-                .Include(p => p.DoctorPatients)
-                .ThenInclude(dp => dp.Doctor)
-                .ToListAsync();
-        }
-
-        public async Task<Patient?> GetPatientByIdAsync(int id)
-        {
-            return await context.Patients.FindAsync(id);
-        }
-
-        public async Task<Patient?> GetPatientWithDoctorsAsync(int id)
-        {
-            return await context.Patients
-                .Include(p => p.DoctorPatients)
-                .ThenInclude(dp => dp.Doctor)
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
         public async Task UpdatePatientAsync(Patient patient, List<int> doctorIds)
         {
             patient.DoctorPatients.Clear();
-            foreach (var dId in doctorIds.Distinct())
+            foreach (var item in doctorIds)
             {
-                patient.DoctorPatients.Add(new DoctorPatient
-                {
-                    DoctorId = dId,
-                    PatientId = patient.Id
+                patient.DoctorPatients.Add(new DoctorPatient 
+                { 
+                    DoctorId = item, 
+                    PatientId = patient.Id 
                 });
             }
-
             await context.SaveChangesAsync();
+        }
+        public async Task DeletePatientAsync(int id)
+        {
+            var patient = await context.Patients
+                .Include(p => p.DoctorPatients)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (patient != null)
+            {
+                context.DoctorPatients.RemoveRange(patient.DoctorPatients);
+                context.Patients.Remove(patient);
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

@@ -17,62 +17,65 @@ namespace Hospital_Manager_Core.Services
         {
             this.context = context;
         }
-        public async Task AddHospitalAsync(Hospital hospital)
+        public async Task<List<Hospital>> GetAllHospitalsAsync(string? search = null, int? minBeds = null, string? sortOrder = null)
         {
-            context.Hospitals.Add(hospital);
-            await context.SaveChangesAsync();  
-        }
-        public async Task DeleteHospitalAsync(int id)
-        {
-            Hospital h = await context.Hospitals.FirstAsync(h => h.Id == id);
+            var query = context.Hospitals.Where(h => !h.IsDeleted);
 
-            if(h != null)
+            if (!string.IsNullOrWhiteSpace(search))
             {
-                h.IsDeleted = true;
-                await context.SaveChangesAsync();
+                query = query.Where(h => h.Name.Contains(search));
             }
+
+            if (minBeds.HasValue)
+            {
+                query = query.Where(h => h.BedsCount >= minBeds.Value);
+            }
+            switch (sortOrder)
+            {
+                case "name":
+                    query = query.OrderBy(h => h.Name);
+                    break;
+                case "beds_desc":
+                    query = query.OrderByDescending(h => h.BedsCount);
+                    break;
+                case "beds_asc":
+                    query = query.OrderBy(h => h.BedsCount);
+                    break;
+                default:
+                    query = query.OrderBy(h => h.Name);
+                    break;
+            }
+            return await query.ToListAsync();
         }
         public async Task<Hospital?> GetHospitalByIdAsync(int id)
         {
             return await context.Hospitals.FindAsync(id);
         }
+        public async Task AddHospitalAsync(Hospital hospital)
+        {
+            context.Hospitals.Add(hospital);
+            await context.SaveChangesAsync();
+        }
         public async Task UpdateHospitalAsync(Hospital hospital)
         {
             await context.SaveChangesAsync();
         }
-
-        public async Task<List<Hospital>> GetAllHospitalsAsync(string? search = null, int? minBeds = null, string? sortOrder = null)
+        public async Task DeleteHospitalAsync(int id)
         {
-            var query = context.Hospitals.Where(h => !h.IsDeleted);
-
-            if(!string.IsNullOrWhiteSpace(search))
+            var hospital = await context.Hospitals.FindAsync(id);
+            if (hospital == null)
             {
-                query = query.Where(h => h.Name.Contains(search));
+                return;
             }
-
-            if(minBeds.HasValue)
+            bool hasDoctors = await context.Doctors
+                .AnyAsync(d => d.HospitalId == id);
+            if (hasDoctors)
             {
-                query = query.Where(h => h.BedsCount >= minBeds.Value);
+                throw new InvalidOperationException(
+                    "Hospital cant be deleted since there are doctors in it!");
             }
-
-            if(sortOrder == "name")
-            {
-                query = query.OrderBy(h => h.Name);
-            }
-            else if(sortOrder == "beds_asc")
-            {
-                query = query.OrderBy(h => h.BedsCount);
-            }
-            else if(sortOrder == "beds_desc")
-            {
-                query = query.OrderByDescending(h => h.BedsCount);
-            }
-            else
-            {
-                query = query.OrderBy(h => h.Name);
-            }
-
-            return await query.ToListAsync();
+            hospital.IsDeleted = true;
+            await context.SaveChangesAsync();
         }
     }
 }

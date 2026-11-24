@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data_Hospital_Manager.Migrations
 {
     [DbContext(typeof(HospitalDbContext))]
-    [Migration("20261002112522_mig5")]
-    partial class mig5
+    [Migration("20261124082156_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -64,6 +64,38 @@ namespace Data_Hospital_Manager.Migrations
                     b.HasIndex("HospitalId");
 
                     b.ToTable("Doctors");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "johnsmith@abv.bg",
+                            FirstName = "Dr. John",
+                            HospitalId = 1,
+                            LastName = "Smith",
+                            PhoneNumber = "0888 123 456",
+                            Specialty = "Cardiology"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "kirlimanolov@abv.bg",
+                            FirstName = "Dr. Kiril",
+                            HospitalId = 2,
+                            LastName = "Manolov",
+                            PhoneNumber = "0888 123 457",
+                            Specialty = "Neurology"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Email = "petarjohnson@abv.bg",
+                            FirstName = "Dr. Peter",
+                            HospitalId = 3,
+                            LastName = "Jonhson",
+                            PhoneNumber = "0888 123 459",
+                            Specialty = "Dermatology"
+                        });
                 });
 
             modelBuilder.Entity("Data_Hospital_Manager.Entities.DoctorPatient", b =>
@@ -78,7 +110,24 @@ namespace Data_Hospital_Manager.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("DoctorsPatients");
+                    b.ToTable("DoctorPatients");
+
+                    b.HasData(
+                        new
+                        {
+                            DoctorId = 1,
+                            PatientId = 1
+                        },
+                        new
+                        {
+                            DoctorId = 2,
+                            PatientId = 2
+                        },
+                        new
+                        {
+                            DoctorId = 2,
+                            PatientId = 3
+                        });
                 });
 
             modelBuilder.Entity("Data_Hospital_Manager.Entities.Hospital", b =>
@@ -118,6 +167,41 @@ namespace Data_Hospital_Manager.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Hospitals");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "Kazanluk",
+                            BedsCount = 100,
+                            CreatedOn = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "hospital@email.com",
+                            IsDeleted = false,
+                            Name = "MBAL Kazanluk",
+                            PhoneNumber = "123-456-7890"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "Stara Zagora",
+                            BedsCount = 150,
+                            CreatedOn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "countyhospital@email.com",
+                            IsDeleted = false,
+                            Name = "Umbal Stara Zagora",
+                            PhoneNumber = "987-654-3210"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Address = "Plovdiv",
+                            BedsCount = 200,
+                            CreatedOn = new DateTime(2025, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "plovdivhospital@email.com",
+                            IsDeleted = false,
+                            Name = "MBAL Plovdiv",
+                            PhoneNumber = "032-555-1234"
+                        });
                 });
 
             modelBuilder.Entity("Data_Hospital_Manager.Entities.Patient", b =>
@@ -149,6 +233,32 @@ namespace Data_Hospital_Manager.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Patients");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "ivanpetrov1@abv.bg",
+                            FirstName = "Ivan",
+                            LastName = "Petrov",
+                            PhoneNumber = "0888 123 456"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "petarivanov1@abv.bg",
+                            FirstName = "Petar",
+                            LastName = "Ivanov",
+                            PhoneNumber = "0888 123 457"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Email = "iordaniordanov1@abv.bg",
+                            FirstName = "Iordan",
+                            LastName = "Iordanov",
+                            PhoneNumber = "0888 123 458"
+                        });
                 });
 
             modelBuilder.Entity("Data_Hospital_Manager.Entities.Doctor", b =>
@@ -156,7 +266,7 @@ namespace Data_Hospital_Manager.Migrations
                     b.HasOne("Data_Hospital_Manager.Entities.Hospital", "Hospital")
                         .WithMany("Doctors")
                         .HasForeignKey("HospitalId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Hospital");

@@ -13,31 +13,57 @@ namespace Data_Hospital_Manager.Configuration
     {
         public void Configure(EntityTypeBuilder<Hospital> builder)
         {
-            builder.HasData
-                (
-                    new Hospital
-                    {
-                        Id = 1,
-                        Name = "МБАЛ Казанлък",
-                        Address = "Казанлък",
-                        Email = "mbalkazanlak@mail.bg",
-                        PhoneNumber = "0899823296",
-                        BedsCount = 200,
-                        IsDeleted = false,
-                        CreatedOn = DateTime.Now,
-                    },
-                    new Hospital
-                    {
-                        Id = 2,
-                        Name = "МБАЛ Стара Загора",
-                        Address = "Стара Загора",
-                        Email = "mbalstz@mail.bg",
-                        PhoneNumber = "0899823294",
-                        BedsCount = 150,
-                        IsDeleted = false,
-                        CreatedOn = DateTime.Now,
-                    }
-                );
+            builder.Property(h => h.Name)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            builder.Property(h => h.Address)
+                .IsRequired();
+
+            builder.Property(h => h.Email)
+                .IsRequired();
+
+            builder.Property(h => h.PhoneNumber)
+                .IsRequired();
+
+            builder.Property(h => h.BedsCount)
+                .IsRequired();
+
+            builder.HasData(
+                new Hospital
+                {
+                    Id = 1,
+                    Name = "MBAL Kazanluk",
+                    Address = "Kazanluk",
+                    Email = "hospital@email.com",
+                    PhoneNumber = "123-456-7890",
+                    BedsCount = 100,
+                    CreatedOn = new DateTime(2024, 6, 1),
+                    IsDeleted = false
+                },
+                new Hospital
+                {
+                    Id = 2,
+                    Name = "Umbal Stara Zagora",
+                    Address = "Stara Zagora",
+                    Email = "countyhospital@email.com",
+                    PhoneNumber = "987-654-3210",
+                    BedsCount = 150,
+                    CreatedOn = new DateTime(2026, 1, 1),
+                    IsDeleted = false
+                },
+                 new Hospital
+                 {
+                     Id = 3,
+                     Name = "MBAL Plovdiv",
+                     Address = "Plovdiv",
+                     Email = "plovdivhospital@email.com",
+                     PhoneNumber = "032-555-1234",
+                     BedsCount = 200,
+                     CreatedOn = new DateTime(2025, 3, 15),
+                     IsDeleted = false
+                 }
+            );
         }
     }
 }

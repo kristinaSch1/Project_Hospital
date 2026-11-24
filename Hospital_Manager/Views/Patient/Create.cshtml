@@ -44,6 +44,7 @@
                 </span>
             </div>
 
+
             <div class="form-group">
                 <label asp-for="Email"
                        class="control-label">
@@ -78,18 +79,14 @@
 
                 <select asp-for="DoctorIds"
                         asp-items="ViewBag.Doctors"
-                        class="form-control">
-
-                    <option value="">
-                        Select Doctors
-                    </option>
+                        class="form-control"
+                        multiple>
                 </select>
 
                 <span asp-validation-for="DoctorIds"
                       class="text-danger">
                 </span>
             </div>
-          
 
             <br />
 

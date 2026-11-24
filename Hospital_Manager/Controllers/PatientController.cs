@@ -12,44 +12,32 @@ namespace Hospital_Manager.Controllers
     {
         private readonly IPatientService patientService;
         private readonly IDoctorService doctorService;
-        private readonly HospitalDbContext context;
-
-        public PatientController(IPatientService patientService, IDoctorService doctorService, 
-            HospitalDbContext context)
+        public PatientController(IPatientService patientService, IDoctorService doctorService)//tozi obekt se podava AVTOMATICHNO
         {
             this.patientService = patientService;
             this.doctorService = doctorService;
-            this.context = context;
         }
-
         public async Task<IActionResult> Index()
         {
-            var patients = await patientService.GetAllPetientsAsync();
-
+            var patients = await patientService.GetAllPatientsAsync();
             var model = new List<PatientIndexViewModel>();
-
-            foreach (var patient in patients)
+            foreach (var item in patients)
             {
                 model.Add(new PatientIndexViewModel
                 {
-                    Id = patient.Id,
-                    FirstName = patient.FirstName,
-                    LastName = patient.LastName,
-                    Email = patient.Email,
-                    PhoneNumber = patient.PhoneNumber,
-
-                    DoctorName = string.Join(", ", patient.DoctorPatients
-                    .Select(x => x.Doctor.FirstName + " " + x.Doctor.LastName))
-
+                    Id = item.Id,
+                    FirstName = item.FirstName,
+                    LastName = item.LastName,
+                    Email = item.Email,
+                    PhoneNumber = item.PhoneNumber,
+                    DoctorName = string.Join(", ", item.DoctorPatients.Select(d => d.Doctor.FirstName + " " + d.Doctor.LastName))
                 });
-
             }
             return View(model);
         }
-
         public async Task<IActionResult> Details(int id)
         {
-            var patient = await patientService.GetPatientByIdAsync(id);
+            Patient? patient = await patientService.GetPatientByIdAsync(id);
             if (patient == null)
             {
                 return NotFound();
@@ -61,32 +49,34 @@ namespace Hospital_Manager.Controllers
                 LastName = patient.LastName,
                 Email = patient.Email,
                 PhoneNumber = patient.PhoneNumber,
-
-                DoctorName = string.Join(", ", patient.DoctorPatients
-                    .Select(x => x.Doctor.FirstName + " " + x.Doctor.LastName))
+                DoctorName = string.Join(", ", patient.DoctorPatients.Select(d => d.Doctor.FirstName + " " + d.Doctor.LastName))
             };
             return View(model);
         }
-
-        public async Task LoadDoctors(List<int> selectedDoctors = null)
+        private async Task LoadDoctors(List<int> selectedDoctors = null)
         {
-            var doctors = await context.Doctors
-                .Select(x => new
+            var doctorQuery = await doctorService.GetAllDoctorsAsync();
+
+            var doctors = doctorQuery
+                .Select(d => new
                 {
-                    x.Id,
-                    FullName = x.FirstName + " " + x.LastName
+                    d.Id,
+                    FullName = d.FirstName + " " + d.LastName
                 })
-                .ToListAsync();
+                .ToList();
 
-            ViewBag.Doctors = new MultiSelectList(doctors, "Id", "FullName", selectedDoctors);
+            ViewBag.Doctors = new MultiSelectList(
+                doctors,
+                "Id",
+                "FullName",
+                selectedDoctors
+            );
         }
-
         public async Task<IActionResult> Create()
         {
             await LoadDoctors();
             return View();
         }
-
         [HttpPost]
         public async Task<IActionResult> Create(PatientCreateViewModel model)
         {
@@ -99,10 +89,11 @@ namespace Hospital_Manager.Controllers
                     Email = model.Email,
                     PhoneNumber = model.PhoneNumber
                 };
-                foreach (var doctorId in model.DoctorIds)
+                foreach (var doctorId in model.DoctorIds)//direktno 
                 {
                     patient.DoctorPatients.Add(new DoctorPatient
                     {
+                        //avtomatichno pravi id-to na pacienta
                         DoctorId = doctorId
                     });
                 }
@@ -112,8 +103,6 @@ namespace Hospital_Manager.Controllers
             await LoadDoctors(model.DoctorIds);
             return View(model);
         }
-
-        //get
         public async Task<IActionResult> Edit(int id)
         {
             var patient = await patientService.GetPatientByIdAsync(id);
@@ -128,14 +117,12 @@ namespace Hospital_Manager.Controllers
                 LastName = patient.LastName,
                 Email = patient.Email,
                 PhoneNumber = patient.PhoneNumber,
-                DoctorIds = patient.DoctorPatients.Select(x => x.DoctorId).ToList()
+                DoctorIds = patient.DoctorPatients.Select(dp => dp.DoctorId).ToList()
             };
             await LoadDoctors(model.DoctorIds);
             return View(model);
         }
-        //post
         [HttpPost]
-
         public async Task<IActionResult> Edit(int id, PatientEditViewModel model)
         {
             if (id != model.Id)
@@ -145,31 +132,32 @@ namespace Hospital_Manager.Controllers
             if (ModelState.IsValid)
             {
                 var patient = await patientService.GetPatientByIdAsync(id);
-
                 if (patient == null)
                 {
                     return NotFound();
                 }
-
                 patient.FirstName = model.FirstName;
                 patient.LastName = model.LastName;
-                patient.Email = model.Email;
                 patient.PhoneNumber = model.PhoneNumber;
-
-
+                patient.Email = model.Email;
+                patient.DoctorPatients.Clear();
+                foreach (var item in model.DoctorIds)
+                {
+                    patient.DoctorPatients.Add(new DoctorPatient
+                    {
+                        DoctorId = item,
+                        PatientId = patient.Id
+                    });
+                }
                 await patientService.UpdatePatientAsync(patient, model.DoctorIds);
                 return RedirectToAction(nameof(Index));
             }
             await LoadDoctors(model.DoctorIds);
             return View(model);
         }
-
-        //get
-
         public async Task<IActionResult> Delete(int id)
         {
             var patient = await patientService.GetPatientByIdAsync(id);
-
             if (patient == null)
             {
                 return NotFound();
@@ -178,13 +166,10 @@ namespace Hospital_Manager.Controllers
             {
                 Id = patient.Id,
                 FirstName = patient.FirstName,
-                LastName = patient.LastName,
-
+                LastName = patient.LastName
             };
             return View(model);
         }
-
-        //post
         [HttpPost]
         [ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -194,7 +179,7 @@ namespace Hospital_Manager.Controllers
             {
                 await patientService.DeletePatientAsync(id);
             }
-           return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index));
         }
     }
 }

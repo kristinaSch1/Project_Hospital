@@ -12,11 +12,26 @@ namespace Hospital_Manager.Controllers
     {
         private readonly IDoctorService doctorService;
         private readonly IHospitalService hospitalService;
-
-        public DoctorController(IDoctorService service, IHospitalService hospitalService)
+        public DoctorController(IDoctorService doctorService, IHospitalService hospitalService)
         {
-            this.doctorService = service;
+            this.doctorService = doctorService;
             this.hospitalService = hospitalService;
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetFilterDoctors(string? search, string? specialty, string? sortOrder)
+        {
+            var doctors = await doctorService.GetAllDoctorsAsync(search, specialty, sortOrder);
+
+            var result = doctors.Select(d => new
+            {
+                Id = d.Id,
+                FirstName = d.FirstName,
+                LastName = d.LastName,
+                Specialty = d.Specialty,
+                HospitalName = d.Hospital.Name
+            }).ToList();
+
+            return Json(result);
         }
 
         public async Task<IActionResult> Index()
@@ -58,9 +73,8 @@ namespace Hospital_Manager.Controllers
                 Email = doctor.Email,
                 PhoneNumber = doctor.PhoneNumber,
                 HospitalName = doctor.Hospital.Name,
-                Patients = doctor.DoctorPatients
-                .Select(x => x.Patient.FirstName + " " + x.Patient.LastName)
-                .ToList()
+
+                Patients = doctor.DoctorPatients.Select(dp => dp.Patient.FirstName + " " + dp.Patient.LastName).ToList()
             };
 
             return View(model);
@@ -91,14 +105,14 @@ namespace Hospital_Manager.Controllers
                     HospitalId = model.HospitalId
                 };
 
-                doctorService.AddDoctorAsync(doctor);
+                await doctorService.AddDoctorAsync(doctor);
+
                 return RedirectToAction(nameof(Index));
             }
-            //Вземи болниците от БД и ги сложи във ViewBag.Hospitals.
-                        ViewBag.Hospitals = new SelectList(
-                await hospitalService.GetAllHospitalsAsync(),
-                "Id",
-                "Name");
+            ViewBag.Hospitals = new SelectList(
+    await hospitalService.GetAllHospitalsAsync(),
+    "Id",
+    "Name");
 
             return View(model);
         }

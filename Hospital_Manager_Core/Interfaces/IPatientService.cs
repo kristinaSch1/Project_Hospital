@@ -9,15 +9,11 @@ namespace Hospital_Manager_Core.Interfaces
 {
     public interface IPatientService
     {
-        Task<List<Patient>> GetAllPetientsAsync();
-
+        Task<List<Patient>> GetAllPatientsAsync();
         Task<Patient?> GetPatientByIdAsync(int id);
         Task<Patient?> GetPatientWithDoctorsAsync(int id);
-
         Task AddPatientAsync(Patient patient);
-
         Task UpdatePatientAsync(Patient patient, List<int> doctorIds);
-
         Task DeletePatientAsync(int id);
     }
 }
