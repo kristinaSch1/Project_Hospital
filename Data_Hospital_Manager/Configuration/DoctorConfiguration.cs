@@ -36,6 +36,12 @@ namespace Data_Hospital_Manager.Configuration
                 .HasForeignKey(d => d.HospitalId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(d => d.User)
+                .WithOne(u => u.Doctor)
+                .HasForeignKey<Doctor>(d => d.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
             builder.HasData(
                 new Doctor
                 {

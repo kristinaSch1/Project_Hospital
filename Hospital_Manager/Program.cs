@@ -1,6 +1,8 @@
 using Data_Hospital_Manager;
+using Data_Hospital_Manager.Entities;
 using Hospital_Manager_Core.Interfaces;
 using Hospital_Manager_Core.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -13,6 +15,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<HospitalDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddIdentity<User, IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<HospitalDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<IHospitalService, HospitalService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
@@ -33,6 +39,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

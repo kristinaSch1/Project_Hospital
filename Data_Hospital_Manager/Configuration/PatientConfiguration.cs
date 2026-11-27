@@ -27,6 +27,11 @@ namespace Data_Hospital_Manager.Configuration
             builder.Property(p => p.PhoneNumber)
                 .IsRequired();
 
+            builder.HasOne(p => p.User)
+                .WithOne(u => u.Patient)
+                .HasForeignKey<Patient>(p => p.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasData(
                 new Patient
                 {
